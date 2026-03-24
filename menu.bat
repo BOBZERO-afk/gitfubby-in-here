@@ -51,7 +51,7 @@ if not exist "%~dp0pissman_25_GUI.py" call :install_piss_main pissman_25_GUI.py 
 if not exist "%~dp0pissman_25.bat" call :install_piss_main pissman_25.bat %~dp0
 if not exist "%~dp0pissman_25.ps1" call :install_piss_main pissman_25.ps1 %~dp0
 if not exist "%~dp0postdata.bat" call :install_piss_main postdata.bat %~dp0
-python pissman_25_main.py
+start /min cmd /k "python pissman_25_main.py start"
 
 :install_if_missing
 set MODULE=%1
