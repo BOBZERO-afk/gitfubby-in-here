@@ -60,6 +60,8 @@ set /p R=">> "
 if "%R%"=="Y" (
     echo trying cmd
     start /min cmd /c "python pissman_25_mainpy start"
+) else (
+    exit /b 0
 )
 
 :install_if_missing
