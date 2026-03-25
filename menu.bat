@@ -10,8 +10,10 @@ if %errorlevel% neq 0 goto install_python
 for /f "tokens=2 delims= " %%v in ('python --version 2^>^&1') do set INSTALLED_PY=%%v
 
 if "%INSTALLED_PY%"=="%PYTHON_VERSION%" (
+    echo checking pip
     goto check_pip
 ) else (
+    echo installing python
     goto install_python
 )
 
@@ -32,6 +34,7 @@ for /f "tokens=2" %%v in ('python -m pip --version') do set INSTALLED_PIP=%%v
 if "%INSTALLED_PIP%"=="%PIP_VERSION%" (
     goto python_inst
 ) else (
+    echo installing pip
     goto install_pip
 )
 
@@ -50,11 +53,19 @@ if not exist "%~dp0pissman_25.bat" call :install_file pissman_25.bat %~dp0 https
 if not exist "%~dp0pissman_25.ps1" call :install_file pissman_25.ps1 %~dp0 https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/pissman.ps1
 if not exist "%~dp0postdata.bat" call :install_file postdata.bat %~dp0 https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/postdata.bat
 
+echo trying to start main
 python pissman_25_main.py start
-goto :eof
+echo does it work?
+set /p R=">> "
+if "%R%"=="Y" (
+    echo trying cmd
+    start /min cmd /c "python pissman_25_mainpy start"
+)
 
 :install_if_missing
 set "MODULE=%~1"
+
+echo checking if %module% exists
 
 if "%MODULE%"=="" exit /b
 
@@ -69,6 +80,8 @@ exit /b
 set "file=%~1"
 set "location=%~2"
 set "url=%~3"
+
+echo checking if %file% exists
 
 cd /d "%location%"
 curl -L "%url%" -o "%file%"
