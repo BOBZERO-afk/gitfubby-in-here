@@ -1,17 +1,24 @@
 import sys, os, subprocess, time
 
-
 def main(data: list):
     subprocess.run(["python", "pissman_25_GUI.py", "R"], shell=True)
 
     while True:
-        while not os.path.exists("output.txt"):
-            time.sleep(3)
+        # Wait for output.txt with timeout
+        for _ in range(100):
+            if os.path.exists("output.txt"):
+                break
+            time.sleep(0.5)
+        else:
+            print("Timeout waiting for output.txt")
+            continue
 
         with open("output.txt", "r") as f:
             out = f.read().strip()
 
         os.remove("output.txt")
+
+        # Default values (prevents crash)
         user = downloadsF = windows_ver = password = pin = EMAIL = ""
 
         if out == "WLN":
@@ -22,10 +29,6 @@ def main(data: list):
             except IndexError:
                 print("Data format error")
                 continue
-
-            password = ""
-            pin = ""
-            EMAIL = ""
 
         elif out == "EXIT":
             sys.exit(0)
@@ -46,12 +49,21 @@ def main(data: list):
             for line in main_output:
                 f.write(str(line) + "\n")
 
+
+data = []
+
+# -----------------------------
+# Safe argument handling
+# -----------------------------
 if len(sys.argv) < 2:
     print("No argument given")
     sys.exit(1)
 
 mode = sys.argv[1]
 
+# -----------------------------
+# START MODE
+# -----------------------------
 if mode == "start":
     if os.path.exists("pissman_25.bat") and os.path.exists("pissman.ps1"):
 
@@ -69,6 +81,7 @@ if mode == "start":
             while not os.path.exists("info2.txt"):
                 time.sleep(1.5)
 
+            # Split info2.txt into lines
             with open("info2.txt", "r") as f:
                 data = f.read().splitlines()
 
@@ -77,9 +90,11 @@ if mode == "start":
         else:
             with open("restart_please.txt", "w") as f:
                 f.write("a")
-
             sys.exit(1)
 
+# -----------------------------
+# RESTART MODE
+# -----------------------------
 elif mode == "restart":
     if not os.path.exists("done.txt"):
         if (
