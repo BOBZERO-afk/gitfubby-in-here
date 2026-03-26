@@ -1,30 +1,33 @@
 @echo off
 setlocal EnableDelayedExpansion
+
 goto menu
 
 :menu
 cls
 echo ==============
-echo  PISSMAN25
+echo   PISSMAN25
 echo ==============
-echo ==============
-call :wait
-pause
-goto download
+call :wait_done
 
-:wait
-if not exist done.txt (
-    timeout /t 1 >nul
-    goto wait
+if not exist info.txt (
+    echo ERROR: info.txt missing
+    pause
+    exit /b
 )
 
-for /f "tokens=1,2 delims==" %%A in (info.txt) do (
-    set %%A=%%B
+rem Clear previous output
+if exist info2.txt del info2.txt
+
+rem Read key=value pairs safely
+for /f "usebackq tokens=1,* delims==" %%A in ("info.txt") do (
+    set "%%A=%%B"
 )
 
+rem Paths
 set "D_download=C:\Users\!User!\Downloads\"
 set "D_disk=C:\Users\!User!\Desktop\"
-set "home=%D_disk%blobber"
+set "home=!D_disk!blobber"
 
 echo ===== INFO =====
 echo User: !User!
@@ -36,25 +39,51 @@ echo Model: !Model!
 echo RAM: !RAM!
 echo CPU: !CPU!
 echo GPU: !GPU!
-echo Disk Free: !DiskFree!
+echo Disk Free: !Disk_C:_Free!
 echo Uptime: !Uptime!
-echo Downloads: %D_download%
-echo Desktop: %D_disk%
-echo download folder: %home%
+echo Downloads: !D_download!
+echo Desktop: !D_disk!
+echo Download folder: !home!
 echo ========================
 
+pause
+
+goto download
+
+:wait_done
+set /a tries=0
+
+:wait_loop
+if exist done.txt goto done_ok
+
+set /a tries+=1
+if !tries! geq 30 (
+    echo Timeout waiting for done.txt
+    exit /b 1
+)
+
+timeout /t 1 >nul
+goto wait_loop
+
+:done_ok
+exit /b
+
 :download
-echo !User!>>info2.txt
-echo !ComputerName!>>info2.txt
-echo !OS!>>info2.txt
-echo !OSVersion!>>info2.txt
-echo !BuildNumber!>>info2.txt
-echo !Model!>>info2.txt
-echo !RAM!>>info2.txt
-echo !CPU!>>info2.txt
-echo !GPU!>>info2.txt
-echo !DiskFree!>>info2.txt
-echo !Uptime!>>info2.txt
-echo %D_download%>>info2.txt
-echo %D_disk%>>info2.txt
-echo %home%>>info2.txt
+(
+echo !User!
+echo !ComputerName!
+echo !OS!
+echo !OSVersion!
+echo !BuildNumber!
+echo !Model!
+echo !RAM!
+echo !CPU!
+echo !GPU!
+echo !Disk_C:_Free!
+echo !Uptime!
+echo !D_download!
+echo !D_disk!
+echo !home!
+) >> info2.txt
+
+exit /b
