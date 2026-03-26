@@ -1,24 +1,25 @@
 import sys, os, subprocess, time
 
+def wait_for_file(file, timeout=50):
+    for _ in range(timeout):
+        if os.path.exists(file):
+            return True
+        time.sleep(0.5)
+    return False
+
 def main(data: list):
-    subprocess.run(["python", "pissman_25_GUI.py", "R"], shell=True)
+    subprocess.run(["python", "pissman_25_GUI.py", "R"])
 
     while True:
-        # Wait for output.txt with timeout
-        for _ in range(100):
-            if os.path.exists("output.txt"):
-                break
-            time.sleep(0.5)
-        else:
+        if not wait_for_file("output.txt"):
             print("Timeout waiting for output.txt")
             continue
 
-        with open("output.txt", "r") as f:
+        with open("output.txt", "r", encoding="utf-8") as f:
             out = f.read().strip()
 
         os.remove("output.txt")
 
-        # Default values (prevents crash)
         user = downloadsF = windows_ver = password = pin = EMAIL = ""
 
         if out == "WLN":
@@ -33,92 +34,54 @@ def main(data: list):
         elif out == "EXIT":
             sys.exit(0)
 
-        main_output = [
-            user,
-            downloadsF,
-            windows_ver,
-            password,
-            pin,
-            EMAIL
-        ]
+        main_output = [user, downloadsF, windows_ver, password, pin, EMAIL]
 
-        if os.path.exists("outmain.txt"):
-            os.remove("outmain.txt")
-
-        with open("outmain.txt", "a") as f:
-            for line in main_output:
-                f.write(str(line) + "\n")
+        with open("outmain.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join(main_output))
 
 
 data = []
 
-# -----------------------------
-# Safe argument handling
-# -----------------------------
 if len(sys.argv) < 2:
     print("No argument given")
     sys.exit(1)
 
 mode = sys.argv[1]
 
-# -----------------------------
-# START MODE
-# -----------------------------
 if mode == "start":
     if os.path.exists("pissman_25.bat") and os.path.exists("pissman.ps1"):
 
-        subprocess.run([
-            "powershell",
-            "-ExecutionPolicy", "Bypass",
-            "-File", "pissman.ps1"
-        ])
-
-        time.sleep(3)
+        subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", "pissman.ps1"])
+        time.sleep(2)
 
         if os.path.exists("done.txt"):
             os.startfile("pissman_25.bat")
 
-            while not os.path.exists("info2.txt"):
-                time.sleep(1.5)
+            if not wait_for_file("info2.txt", 40):
+                print("info2.txt timeout")
+                sys.exit(1)
 
-            # Split info2.txt into lines
-            with open("info2.txt", "r") as f:
+            with open("info2.txt", "r", encoding="utf-8") as f:
                 data = f.read().splitlines()
 
             main(data)
-
         else:
             with open("restart_please.txt", "w") as f:
                 f.write("a")
             sys.exit(1)
 
-# -----------------------------
-# RESTART MODE
-# -----------------------------
 elif mode == "restart":
     if not os.path.exists("done.txt"):
-        if (
-            os.path.exists("pissman_25.bat")
-            and os.path.exists("pissman.ps1")
-            and os.path.exists("restart_please.txt")
-        ):
+        if all(os.path.exists(f) for f in ["pissman_25.bat", "pissman.ps1", "restart_please.txt"]):
             os.remove("restart_please.txt")
 
-            try:
-                os.startfile("pissman_25.bat")
+            os.startfile("pissman_25.bat")
 
-                while not os.path.exists("info2.txt"):
-                    time.sleep(1.5)
+            if not wait_for_file("info2.txt", 40):
+                print("Timeout restart")
+                sys.exit(1)
 
-                with open("info2.txt", "r") as f:
-                    data = f.read().splitlines()
-
-            except OSError as r:
-                print(f"OSError! {r}")
-                raise
-
-            except FileNotFoundError as r:
-                print(f"Try again without restarting... {r}")
-                raise
+            with open("info2.txt", "r", encoding="utf-8") as f:
+                data = f.read().splitlines()
 
             main(data)
