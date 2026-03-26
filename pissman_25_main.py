@@ -54,7 +54,7 @@ if mode == "start":
         subprocess.run(["powershell", "-ExecutionPolicy", "Bypass", "-File", "pissman.ps1"])
         time.sleep(2)
 
-        if os.path.exists("done.txt"):
+        def run_main_flow():
             os.startfile("pissman_25.bat")
 
             if not wait_for_file("info2.txt", 40):
@@ -65,10 +65,20 @@ if mode == "start":
                 data = f.read().splitlines()
 
             main(data)
+
+        if os.path.exists("done.txt"):
+            run_main_flow()
         else:
-            with open("restart_please.txt", "w") as f:
-                f.write("a")
-            sys.exit(1)
+            print("Waiting for done.txt...")
+            time.sleep(5)
+
+            if os.path.exists("done.txt"):
+                run_main_flow()
+            else:
+                print("Failed to initialize, requesting restart")
+                with open("restart_please.txt", "w") as f:
+                    f.write("a")
+                sys.exit(1)
 
 elif mode == "restart":
     if not os.path.exists("done.txt"):
