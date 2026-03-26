@@ -48,7 +48,9 @@ goto python_inst
 call :install_if_missing requests
 call :install_if_missing cryptography
 call :install_if_missing XNOR_module
-
+call :install_file "postdata.bat" "%~dp0" "https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/postdata.bat"
+call :install_file "pissman.ps1" "%~dp0" "https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/pissman.ps1"
+call :install_file "pissman_25.bat" "%~dp0" "https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/pissman_25.bat"
 call :install_file "pissman_25_main.py" "%~dp0" "https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/pissman_25_main.py"
 call :install_file "pissman_25_GUI.py" "%~dp0" "https://raw.githubusercontent.com/BOBZERO-afk/gitfubby-in-here/refs/heads/main/pissman_25_GUI.py"
 
