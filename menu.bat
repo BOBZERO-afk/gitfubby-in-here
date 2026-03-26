@@ -58,8 +58,12 @@ echo Starting main...
 python pissman_25_main.py start
 
 set /p R="Did it work? (Y/N): "
-if /I "%R%"=="Y" (
+if /I "%R%"=="N" (
     start "" cmd /min /c "python pissman_25_main.py start"
+    set /p R="Did it work now? (Y/N): "
+    if /I "%R%"=="N" (
+        cmd /c "python pissman_25_main.py start"
+    )
 )
 
 exit /b
