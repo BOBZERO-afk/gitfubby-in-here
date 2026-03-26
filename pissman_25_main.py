@@ -55,7 +55,8 @@ if mode == "start":
         time.sleep(2)
 
         def run_main_flow():
-            os.startfile("pissman_25.bat")
+            if os.path.exists("done.txt"):
+                os.startfile("pissman_25.bat")
 
             if not wait_for_file("info2.txt", 40):
                 print("info2.txt timeout")
