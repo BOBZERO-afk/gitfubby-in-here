@@ -1,6 +1,6 @@
 import sys, os, subprocess, time
 
-def wait_for_file(file, timeout=50):
+def wait_for_file(file, timeout=10):
     for _ in range(timeout):
         if os.path.exists(file):
             return True
